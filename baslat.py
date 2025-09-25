@@ -1,5 +1,4 @@
 # baslat.py
-
 from rules.rules_manager import Rules
 from core.game_state import GameState
 import random
@@ -11,19 +10,24 @@ def baslat_oyun(game, gorev=None):
         game.mevcut_gorev = gorev
     else:
         game.mevcut_gorev = random.choice(Rules.GOREVLER)
+        
+    # YENİ EKLENEN MANTIK: Çift görevi bayrağını belirle
+    is_cift_gorevi = game.mevcut_gorev == "Çift"
+    
     game.kazanan_index = None
     game.deste.olustur()
     game.deste.karistir()
     
-    # Gösterge taşı çekme işlemi kaldırıldı.
-
     game.sira_kimde_index = 0
     for i, oyuncu in enumerate(game.oyuncular):
         oyuncu.el = []
+        # YENİ EKLENEN MANTIK: Oyuncunun Çift görevi bayrağını ayarla
+        oyuncu.is_cift_gorevi = is_cift_gorevi 
+        
         tas_sayisi = 14 if i == game.sira_kimde_index else 13
         for _ in range(tas_sayisi):
             oyuncu.tas_al(game.deste.tas_cek())
-        oyuncu.el_sirala()
+        
     game.oyun_durumu = GameState.ILK_TUR
     game.atilan_taslar = []
     game.acilan_perler = {i: [] for i in range(len(game.oyuncular))}

@@ -2,10 +2,12 @@
 from core.tile import Tile
 from log import logger
 
-# Ayırdığımız fonksiyonları aynı paketten içe aktar
+# Ayırdığımız fonksiyonları içe aktar
 from .tas_al import tas_al
 from .tas_at import tas_at
 from .el_sirala import el_sirala
+# Yeni fonksiyonu import et
+from .get_pair_status import get_pair_status 
 
 class Player:
     @logger.log_function
@@ -14,8 +16,10 @@ class Player:
         self.el = []
         self.index = index
         self.acilmis_perler = []
+        # YENİ EKLENEN BAYRAK: Çift görevinde olup olmadığını tutar
+        self.is_cift_gorevi = False
     
-    # Eski metotları yeni fonksiyonlara çağrı yapacak şekilde yeniden yazın
+    # ... (tas_al, tas_at metotları alt adımlarda güncellenir)
     def tas_al(self, tas: Tile):
         tas_al(self, tas)
 
@@ -23,4 +27,5 @@ class Player:
         return tas_at(self, tas_id)
 
     def el_sirala(self):
-        el_sirala(self)
+        # Bu fonksiyon, diğer fonksiyonlar tarafından çağrılmaya devam edecek
+        el_sirala(self, is_cift_gorevi=self.is_cift_gorevi)
