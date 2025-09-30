@@ -32,25 +32,44 @@ class JokerManager:
     def joker_icin_olasi_taslar(diger_taslar):
         olasi_taslar = []
         
-        # Seri için
+        # Seri için (İç ve Dış Boşluk Kontrolü)
         if len({t.renk for t in diger_taslar}) == 1:
             renk = diger_taslar[0].renk
             sayilar = sorted([t.deger for t in diger_taslar])
+            mevcut_sayilar_set = set(sayilar)
             
-            if len(sayilar) == 2 and sayilar[1] - sayilar[0] == 2:
-                olasi_taslar.append(Tile(renk, sayilar[0] + 1, f"{renk}_{sayilar[0]+1}.png"))
-            else:
-                if sayilar[0] > 1:
-                    olasi_taslar.append(Tile(renk, sayilar[0] - 1, f"{renk}_{sayilar[0]-1}.png"))
-                if sayilar[-1] < 13:
-                    olasi_taslar.append(Tile(renk, sayilar[-1] + 1, f"{renk}_{sayilar[-1]+1}.png"))
+            min_deger = sayilar[0]
+            max_deger = sayilar[-1]
             
-            # 1-13 döngüsü için
-            if 1 in sayilar and 13 in sayilar:
-                if len(sayilar) == 2:
-                    olasi_taslar.append(Tile(renk, 12, f"{renk}_{12}.png"))
-        
-        # Küt için
+            aday_sayilar = set()
+            
+            # 1. İç boşlukları bul (Örn: 1, 3, 4, 5'teki 2)
+            for d in range(min_deger + 1, max_deger):
+                if d not in mevcut_sayilar_set:
+                    aday_sayilar.add(d)
+            
+            # 2. Endpoint'leri kontrol et (Hemen önü ve hemen arkası)
+            # Min değerden bir önceki (Örn: 3, 4, 5'in 2'si)
+            if min_deger > 1 and min_deger - 1 not in mevcut_sayilar_set:
+                aday_sayilar.add(min_deger - 1)
+
+            # Max değerden bir sonraki (Örn: 3, 4, 5'in 6'sı)
+            if max_deger < 13 and max_deger + 1 not in mevcut_sayilar_set:
+                aday_sayilar.add(max_deger + 1)
+            
+            # 3. Döngüsel Seri (12-13-1) için özel kontrol
+            if 1 in mevcut_sayilar_set and 13 in mevcut_sayilar_set:
+                # 12'nin eksik olduğu durum (1-13 arasına tamamlamak için)
+                if 12 not in mevcut_sayilar_set:
+                    aday_sayilar.add(12)
+            
+            
+            for deger in aday_sayilar:
+                 # Taşın zaten elde olmadığını varsayarak Tile oluştur
+                 olasi_taslar.append(Tile(renk, deger, f"{renk}_{deger}.png"))
+
+
+        # Küt için (Bu kısım zaten doğru çalışıyor)
         elif len({t.deger for t in diger_taslar}) == 1 and len(diger_taslar) <= 3:
             deger = diger_taslar[0].deger
             renkler_mevcut = {t.renk for t in diger_taslar}

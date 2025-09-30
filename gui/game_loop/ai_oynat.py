@@ -34,7 +34,6 @@ def ai_oynat(arayuz):
             elini_acti_mi = oyun.acilmis_oyuncular[sira_index]
 
             # --- YENİ BİRLEŞTİRİLMİŞ İKİNCİL HAMLE DÖNGÜSÜ ---
-            # AI, bir hamle yaptığı sürece (el açma, işleme, yeni el açma) döngü devam eder.
             action_performed_in_loop = True
             while action_performed_in_loop:
                 action_performed_in_loop = False
@@ -43,11 +42,20 @@ def ai_oynat(arayuz):
                 if not elini_acti_mi:
                     ac_kombo = ai_oyuncu.ai_el_ac_dene(oyun)
                     if ac_kombo:
-                        oyun.el_ac(sira_index, ac_kombo)
+                        # DÜZELTME: oyun.el_ac'ten dönen sonucu yakala
+                        result = oyun.el_ac(sira_index, ac_kombo) #
+                        
+                        # KRİTİK KISIRDÖNGÜ ÖNLEME
+                        if result and result.get('status') == 'joker_choice_needed':
+                            logger.info("AI Kısırdöngü Önleme: İnteraktif Joker Seçimi Gerekti. El açma başarısız oldu, taş atmaya geçiliyor.")
+                            action_performed_in_loop = False # Hamle yapılmadı say
+                            break # While döngüsünden çıkıp taş atmaya geç.
+                        
+                        # Başarılı El Açma Durumu
                         arayuz.arayuzu_guncelle()
                         elini_acti_mi = True # Durumu güncelle
                         action_performed_in_loop = True
-                        continue # Tekrar döngünün başına dön (işleme ve yeni el açma kontrolü için)
+                        continue 
                 
                 # 2. İŞLEME / JOKER DEĞİŞTİRME (Eli açık oyuncu için, yüksek öncelik)
                 # Kural: İlk el açma hamlesinin yapıldığı turda işleme yapılamaz.
@@ -62,23 +70,29 @@ def ai_oynat(arayuz):
                         if oyun.oyun_bitti_mi(): return
                         arayuz.arayuzu_guncelle()
                         action_performed_in_loop = True
-                        continue # İşleme yapıldı, döngüyü tekrarla (belki yeni bir işleme yapılabilir)
+                        continue 
 
                 # 3. YENİ EL AÇMA (Eli açık oyuncu için, işleme yapılmadıysa ve görev tamamlandıysa)
-                # Bu kontrol, sadece önceki adımlarda bir aksiyon yapılmadıysa (action_performed_in_loop == False) ve eli açıksa çalışır.
                 if elini_acti_mi and oyun.ilk_el_acan_tur.get(sira_index, -1) < oyun.tur_numarasi:
                     ac_kombo = ai_oyuncu.ai_el_ac_dene(oyun)
                     if ac_kombo:
-                        oyun.el_ac(sira_index, ac_kombo)
+                        # DÜZELTME: oyun.el_ac'ten dönen sonucu yakala
+                        result = oyun.el_ac(sira_index, ac_kombo) #
+
+                        # KRİTİK KISIRDÖNGÜ ÖNLEME
+                        if result and result.get('status') == 'joker_choice_needed':
+                            logger.info("AI Kısırdöngü Önleme: İnteraktif Joker Seçimi Gerekti. El açma başarısız oldu, taş atmaya geçiliyor.")
+                            action_performed_in_loop = False # Hamle yapılmadı say
+                            break # While döngüsünden çıkıp taş atmaya geç.
+
                         if oyun.oyun_bitti_mi(): return
                         arayuz.arayuzu_guncelle()
                         action_performed_in_loop = True
-                        # Yeni per açıldı, joker işleme fırsatı doğabilir, bu yüzden döngü tekrar etmeli.
                         continue
                         
             # --- DÖNGÜ SONU ---
             
-            # 4. TAŞ ATMA
+            # 4. TAŞ ATMA (Döngüden çıkış her zaman buraya ulaşmalı)
             if ai_oyuncu.el and oyun.oyun_durumu == GameState.NORMAL_TAS_ATMA:
                 tas_to_discard = ai_oyuncu.karar_ver_ve_at(oyun)
                 if tas_to_discard:

@@ -7,7 +7,7 @@ from rules.per_validators.karma_per_dogrula import karma_per_dogrula
 from rules.per_validators.cift_per_mu import cift_per_mu
 from log import logger
 
-@logger.log_function
+#@logger.log_function
 def per_dogrula(taslar, gorev):
     if gorev == "Küt 3": return len(taslar) == 3 and kut_mu(taslar, 3)
     if gorev == "Seri 3": return len(taslar) == 3 and seri_mu(taslar, 3)

@@ -18,7 +18,7 @@ class Rules:
         return per_dogrula(taslar, gorev)
 
     @staticmethod
-    @logger.log_function
+    #@logger.log_function
     def genel_per_dogrula(taslar):
         return genel_per_dogrula(taslar)
 

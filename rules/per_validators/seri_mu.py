@@ -1,7 +1,7 @@
 # rules/per_validators/seri_mu.py
 from log import logger
 
-@logger.log_function
+#@logger.log_function
 def seri_mu(taslar, min_sayi=3):
     if len(taslar) < min_sayi: return False
     renk, sayilar, joker_sayisi = None, [], 0
