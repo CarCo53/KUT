@@ -1,4 +1,5 @@
 # engine/action_manager/joker_degistir.py
+
 from log import logger
 from rules.rules_manager import Rules
 
@@ -22,6 +23,7 @@ def joker_degistir(game, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
         if per_tasi.renk == "joker" and per_tasi.joker_yerine_gecen:
             yerine_gecen = per_tasi.joker_yerine_gecen
             if yerine_gecen.renk == degistirilecek_tas.renk and yerine_gecen.deger == degistirilecek_tas.deger:
+                
                 joker = per.pop(i)
                 joker.joker_yerine_gecen = None
                 
@@ -34,4 +36,13 @@ def joker_degistir(game, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
                 game._per_sirala(per)
                 return {"status": "success"}
                 
-    return {"status": "fail", "message": "Geçersiz joker değiştirme hamlesi."}
+    # KRİTİK HATA MESAJI DÜZELTMESİ (Joker'i alamama nedenini açıklar)
+    temsil_edilenler = [f"{t.joker_yerine_gecen.renk.capitalize()} {t.joker_yerine_gecen.deger}" 
+                        for t in per if t.renk == "joker" and t.joker_yerine_gecen]
+    
+    if temsil_edilenler:
+        hata_mesaji = f"Seçilen taş masadaki jokerin temsil ettiği taşla ({', '.join(temsil_edilenler)}) eşleşmiyor."
+    else:
+        hata_mesaji = "Geçersiz joker değiştirme hamlesi. Seçili per'de alınabilir joker yok."
+            
+    return {"status": "fail", "message": hata_mesaji}

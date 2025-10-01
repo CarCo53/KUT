@@ -1,4 +1,5 @@
 # gui/arayuzguncelle/arayuzu_guncelle.py
+
 import tkinter as tk
 from core.game_state import GameState
 from log import logger
@@ -8,9 +9,14 @@ def arayuzu_guncelle(arayuz):
     for i, oyuncu in enumerate(oyun.oyuncular):
         key = f"oyuncu_{i+1}"
         frame = arayuz.alanlar[key]
-        frame.config(text=f"{oyuncu.isim} ({len(oyuncu.el)} taş)")
+        
+        # OYUNCU BİLGİSİNİN GÜNCELLENMESİ
+        frame.config(text=f"{oyuncu.isim} ({len(oyuncu.el)} taş)") # <-- Eksik kısım burası olmalıydı!
+        
         for widget in frame.winfo_children():
             widget.destroy()
+            
+        # TAŞLARIN ÇİZİLMESİ
         for tas in oyuncu.el:
             img = arayuz.visuals.tas_resimleri.get(tas.imaj_adi)
             if img:
@@ -21,12 +27,13 @@ def arayuzu_guncelle(arayuz):
                 if i == 0:
                     label.bind("<Button-1>", lambda e, t_id=tas.id: arayuz.tas_sec(t_id))
 
+    # MASA VE PER ÇİZİMİ (Önceki düzeltmelerimizdeki gibi, Joker'i altın çerçeveli çiziyor)
     for widget in arayuz.masa_frame.winfo_children():
         widget.destroy()
 
     for oyuncu_idx, per_listesi in oyun.acilan_perler.items():
         if not per_listesi: continue
-        oyuncu_adi = oyun.oyuncular[oyuncu_idx].isim
+        oyuncu_adi = oyun.oyuncular[oyun.oyuncular[oyuncu_idx].index].isim # Index kontrolü ile oyuncu adı alınıyor
         oyuncu_per_cercevesi = tk.Frame(arayuz.masa_frame)
         oyuncu_per_cercevesi.pack(anchor="w", pady=2)
         tk.Label(oyuncu_per_cercevesi, text=f"{oyuncu_adi}:", font=("Arial", 10, "bold")).pack(side=tk.LEFT, padx=5)
@@ -43,6 +50,7 @@ def arayuzu_guncelle(arayuz):
                     
                     tas_cerceve = tk.Frame(per_cerceve_dis, bg="gold", borderwidth=2, relief="groove")
                     tas_cerceve.pack(side=tk.LEFT, padx=1, pady=1)
+                    
                     if img:
                         label = tk.Label(tas_cerceve, image=img, borderwidth=0)
                         label.pack()
@@ -56,6 +64,7 @@ def arayuzu_guncelle(arayuz):
                         label.bind("<Button-1>", lambda e, o_idx=oyuncu_idx, p_idx=per_idx: arayuz.per_sec(o_idx, p_idx))
 
 
+    # DESTE/ATILAN TAŞLARIN GÜNCELLENMESİ
     for widget in arayuz.deste_frame.winfo_children():
          if widget != arayuz.deste_sayisi_label:
             widget.destroy()
@@ -77,6 +86,7 @@ def arayuzu_guncelle(arayuz):
          if img:
              tk.Label(arayuz.atilan_frame, image=img).pack(side=tk.LEFT)
 
+    # BUTON VE STATUS BAR GÜNCELLEMESİ
     arayuz.button_manager.butonlari_guncelle(oyun.oyun_durumu)
 
     if oyun.oyun_durumu == GameState.BITIS:

@@ -1,4 +1,5 @@
 # gui/__init__.py
+
 import tkinter as tk
 from gui.visuals import Visuals
 from gui.buttons import ButtonManager
@@ -23,14 +24,14 @@ class Arayuz:
         self.oyun.arayuz = self
         self.pencere = tk.Tk()
         self.pencere.title("Okey Oyunu")
-        self.pencere.geometry("1400x900")
+        self.pencere.geometry("1400x900+0+0")
         self.visuals = Visuals()
         self.visuals.yukle()
         self.statusbar = StatusBar(self)
         self.button_manager = ButtonManager(self)
         self.secili_tas_idler = []
         self.alanlar = {}
-        self._layout_olustur() # Sınıf metodu yerine alttaki fonksiyon çağrılıyor
+        self._layout_olustur()
         self.arayuzu_guncelle()
 
     @logger.log_function
@@ -39,18 +40,25 @@ class Arayuz:
     
     @logger.log_function
     def arayuzu_guncelle(self):
+        # KRİTİK JOKER/OKEY TAŞI GÖSTERİMİ
         okey_tasi = self.oyun.deste.okey_tasi
+        
         if okey_tasi:
             okey_gorseli = self.visuals.tas_resimleri.get("joker.png")
             temsilci_gorseli = self.visuals.tas_resimleri.get(okey_tasi.imaj_adi)
-            self.okey_tasi_label.config(image=okey_gorseli)
+            
+            self.okey_tasi_label.config(image=okey_gorseli, text="", borderwidth=4, relief="solid")
             self.okey_tasi_label.image = okey_gorseli
-            self.okey_temsilci_label.config(image=temsilci_gorseli)
+            self.okey_temsilci_label.config(image=temsilci_gorseli, text="", borderwidth=0)
             self.okey_temsilci_label.image = temsilci_gorseli
+            self.ok_label.config(text="=>", font=("Arial", 16, "bold"))
         else:
-            self.okey_tasi_label.config(image=None, text="Joker", borderwidth=2, relief="groove")
-            self.okey_temsilci_label.config(image=None, text="", borderwidth=0)
+            # Okey taşı atanmadıysa (Oyuna başlamak için ilk taş atılmadan önce olabilir)
+            # Veya Deck.okey_tasi hep None dönüyorsa, arayüzün çökmesini önle.
+            self.okey_tasi_label.config(image=None, text="Joker", borderwidth=4, relief="solid")
+            self.okey_temsilci_label.config(image=None, text="?", borderwidth=0)
             self.ok_label.config(text="")
+            
         return arayuzu_guncelle(self)
         
     @logger.log_function

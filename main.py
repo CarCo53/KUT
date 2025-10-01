@@ -1,3 +1,5 @@
+# main.py
+
 import sys
 import os
 import argparse
@@ -33,7 +35,10 @@ def main():
     parser.add_argument("-gorev", type=str, choices=GOREV_LISTESI, help="Oyunun başlayacağı özel görevi belirler.")
     args = parser.parse_args()
     
+    # KRİTİK LOG DÜZELTMESİ: Dinamik log dosyasını ayarla
     log_file_name = get_next_log_file_name()
+    # Log dosyasının mode='w' (üzerine yazma) ayarı log.py'de kaldığı için, 
+    # her seferinde yeni bir dosya adı atamak bu sorunu çözer.
     logger.logger.handlers[1].baseFilename = os.path.abspath(log_file_name)
 
     oyun = Game()

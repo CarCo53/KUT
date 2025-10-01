@@ -42,20 +42,30 @@ def ai_oynat(arayuz):
                 if not elini_acti_mi:
                     ac_kombo = ai_oyuncu.ai_el_ac_dene(oyun)
                     if ac_kombo:
-                        # DÜZELTME: oyun.el_ac'ten dönen sonucu yakala
-                        result = oyun.el_ac(sira_index, ac_kombo) #
-                        
-                        # KRİTİK KISIRDÖNGÜ ÖNLEME
+                        result = oyun.el_ac(sira_index, ac_kombo)
+
+                        # KRİTİK DÜZELTME: JOKER SEÇİMİ OTOMATİKLEŞTİRME
                         if result and result.get('status') == 'joker_choice_needed':
-                            logger.info("AI Kısırdöngü Önleme: İnteraktif Joker Seçimi Gerekti. El açma başarısız oldu, taş atmaya geçiliyor.")
-                            action_performed_in_loop = False # Hamle yapılmadı say
-                            break # While döngüsünden çıkıp taş atmaya geç.
+                            try:
+                                # AI için en basit kural: ilk geçerli seçeneği seç
+                                secilen_deger = result["options"][0] 
+                                joker = result["joker"]
+                                secilen_taslar = result["secilen_taslar"]
+                                
+                                logger.info(f"AI Otomatik Joker Seçimi: El açmak için jokerin yerine {secilen_deger.renk}_{secilen_deger.deger} seçildi.")
+                                oyun.el_ac_joker_ile(sira_index, secilen_taslar, joker, secilen_deger)
+                                result = None # Başarıyı göstermek için result'ı sıfırla
+                            except IndexError:
+                                logger.error("AI Otomatik Joker Seçimi Başarısız: Geçerli joker seçeneği bulunamadı.")
+                                result['status'] = 'fail'
                         
                         # Başarılı El Açma Durumu
-                        arayuz.arayuzu_guncelle()
-                        elini_acti_mi = True # Durumu güncelle
-                        action_performed_in_loop = True
-                        continue 
+                        if result is None or (result and result.get('status') != 'fail'):
+                            if oyun.oyun_bitti_mi(): return
+                            arayuz.arayuzu_guncelle()
+                            elini_acti_mi = True
+                            action_performed_in_loop = True
+                            continue 
                 
                 # 2. İŞLEME / JOKER DEĞİŞTİRME (Eli açık oyuncu için, yüksek öncelik)
                 # Kural: İlk el açma hamlesinin yapıldığı turda işleme yapılamaz.
@@ -76,15 +86,22 @@ def ai_oynat(arayuz):
                 if elini_acti_mi and oyun.ilk_el_acan_tur.get(sira_index, -1) < oyun.tur_numarasi:
                     ac_kombo = ai_oyuncu.ai_el_ac_dene(oyun)
                     if ac_kombo:
-                        # DÜZELTME: oyun.el_ac'ten dönen sonucu yakala
-                        result = oyun.el_ac(sira_index, ac_kombo) #
+                        result = oyun.el_ac(sira_index, ac_kombo)
 
-                        # KRİTİK KISIRDÖNGÜ ÖNLEME
+                        # KRİTİK DÜZELTME: JOKER SEÇİMİ OTOMATİKLEŞTİRME
                         if result and result.get('status') == 'joker_choice_needed':
-                            logger.info("AI Kısırdöngü Önleme: İnteraktif Joker Seçimi Gerekti. El açma başarısız oldu, taş atmaya geçiliyor.")
-                            action_performed_in_loop = False # Hamle yapılmadı say
-                            break # While döngüsünden çıkıp taş atmaya geç.
-
+                            try:
+                                secilen_deger = result["options"][0] 
+                                joker = result["joker"]
+                                secilen_taslar = result["secilen_taslar"]
+                                
+                                logger.info(f"AI Otomatik Joker Seçimi: Yeni el açmak için jokerin yerine {secilen_deger.renk}_{secilen_deger.deger} seçildi.")
+                                oyun.el_ac_joker_ile(sira_index, secilen_taslar, joker, secilen_deger)
+                                result = None # Başarıyı göster
+                            except IndexError:
+                                logger.error("AI Otomatik Joker Seçimi Başarısız: Geçerli joker seçeneği bulunamadı.")
+                                result['status'] = 'fail'
+                                
                         if oyun.oyun_bitti_mi(): return
                         arayuz.arayuzu_guncelle()
                         action_performed_in_loop = True
