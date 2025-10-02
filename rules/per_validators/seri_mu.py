@@ -17,11 +17,23 @@ def seri_mu(taslar, min_sayi=3):
     if len(set(sayilar)) != len(sayilar): return False
     sayilar.sort()
     
+    # DÖNGÜSEL SERİ KONTROLÜ
     is_dongusel = 1 in sayilar and 13 in sayilar
     if is_dongusel:
+        # 1'leri 14'e dönüştürerek sürekli bir dizi olup olmadığını kontrol et.
         dongusel_kopya = sorted([14 if s == 1 else s for s in sayilar])
+        
+        # Gereken boşluk: (Maksimum Değer - Minimum Değer + 1) - Gerçek Taş Sayısı
+        # Bu, dizideki ardışık olmayan boşlukların sayısını verir.
         gereken_bosluk = (dongusel_kopya[-1] - dongusel_kopya[0] + 1) - len(dongusel_kopya)
-        if joker_sayisi >= gereken_bosluk: return True
+        
+        # Eğer joker sayısı gereken boşluğu kapatmaya yetiyorsa, geçerlidir.
+        # Örn: [12, 13, 1] -> [12, 13, 14]. Boşluk = 0.
+        # Örn: [1, 13] -> [13, 14]. Boşluk = 0. (Bu, 2 taşla seri olmaz, ancak JokerManager'da 2 taşla per açmak zaten kısıtlıdır.)
+        # Örn: [1, 2, 13] -> [2, 13, 14]. Boşluk = 10. Çok fazla.
+        if joker_sayisi >= gereken_bosluk: 
+             return True
 
+    # NORMAL SERİ KONTROLÜ
     gereken_bosluk_normal = (sayilar[-1] - sayilar[0] + 1) - len(sayilar)
     return joker_sayisi >= gereken_bosluk_normal

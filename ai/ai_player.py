@@ -1,21 +1,15 @@
 # ai/ai_player.py
 
-import random
 from core.player import Player
-from core.game_state import GameState
 from log import logger
-from itertools import combinations
-from rules.rules_manager import Rules
-from rules.per_validators.seri_mu import seri_mu
-from rules.per_validators.kut_mu import kut_mu
+# from itertools import combinations # Artık bu fonksiyonlar dışarıda kullanılıyor.
 
-# Ayırdığımız fonksiyonları import et
-from ai.strategies.planlama_stratejisi.eli_analiz_et import eli_analiz_et
-from ai.strategies.planlama_stratejisi.en_akilli_ati_bul import en_akilli_ati_bul
-from ai.strategies.klasik_per_stratejisi.en_iyi_per_bul import en_iyi_per_bul
-from ai.strategies.coklu_per_stratejisi.en_iyi_coklu_per_bul import en_iyi_coklu_per_bul
-from ai.strategies.cift_stratejisi.en_iyi_ciftleri_bul import en_iyi_ciftleri_bul
-from ai.strategies.cift_stratejisi.atilacak_en_kotu_tas import atilacak_en_kotu_tas
+# Ayırdığımız strateji fonksiyonlarını import et
+from ai.strategies.degerlendirme_stratejisi.tas_degerlendir import tas_degerlendir
+from ai.strategies.el_acma_stratejisi.el_ac_dene import el_ac_dene
+from ai.strategies.islem_stratejisi.islem_yap_dene import islem_yap_dene
+from ai.strategies.discard_stratejisi.karar_ver_ve_at_wrapper import karar_ver_ve_at_wrapper
+
 
 class AIPlayer(Player):
     @logger.log_function
@@ -25,110 +19,20 @@ class AIPlayer(Player):
 
     @logger.log_function
     def atilan_tasi_degerlendir(self, game, atilan_tas):
-        # Kural 1: Açılmış per'e işleme
-        if game.acilmis_oyuncular[self.index]:
-            for per_idx, per in enumerate(game.acilan_perler[self.index]):
-                if Rules.islem_dogrula(per, atilan_tas):
-                    logger.info(f"AI {self.isim} açılmış perine taş eklemek için atılan taşı alıyor: {atilan_tas.renk}_{atilan_tas.deger}")
-                    return True
-        else:
-            gecici_el = self.el + [atilan_tas]
-            gecici_el_analizi = eli_analiz_et(gecici_el)
-            
-            # Kural 2: GÖREVİ TAMAMLAMA (Oyun bitirme veya el açma)
-            if any(Rules.per_dogrula(list(kombo), game.mevcut_gorev) for kombo in gecici_el_analizi['seriler'] + gecici_el_analizi['uc_taslilar'] + gecici_el_analizi['dort_taslilar'] + gecici_el_analizi['ciftler']):
-                logger.info(f"AI {self.isim} görevi tamamlamak için atılan taşı alıyor: {atilan_tas.renk}_{atilan_tas.deger}")
-                return True
-            
-            # Kural 3: ATILAN TAŞ, HEMEN 3'LÜ VEYA 4'LÜ GEÇERLİ BİR PER OLUŞTURMALI
-            yeni_per_bulundu = False
-            for boyut in [3, 4]:
-                for kombo in combinations(gecici_el, boyut):
-                    if atilan_tas in kombo:
-                        if Rules.genel_per_dogrula(list(kombo)):
-                            logger.info(f"AI {self.isim} en az {boyut}'lu geçerli per oluşturduğu için atılan taşı alıyor: {atilan_tas.renk}_{atilan_tas.deger}")
-                            yeni_per_bulundu = True
-                            break 
-                if yeni_per_bulundu:
-                    return True
-
-        logger.info(f"AI {self.isim} atılan taşı değerlendiriyor. Almadı.")
-        return False
+        # Tüm değerlendirme mantığı dışarıdaki fonksiyona devredildi.
+        return tas_degerlendir(self, game, atilan_tas)
 
     @logger.log_function
     def ai_el_ac_dene(self, game):
-        gorev = game.mevcut_gorev
-        
-        if not game.acilmis_oyuncular[self.index]:
-            if gorev == "Çift":
-                acilacak_per = en_iyi_ciftleri_bul(self.el, gorev)
-                if acilacak_per:
-                    return [t.id for t in acilacak_per]
-                else:
-                    return None
-            
-            elif "2x" in gorev or "+" in gorev:
-                acilacak_per = en_iyi_coklu_per_bul(self.el, gorev)
-                if acilacak_per:
-                    return [t.id for t in acilacak_per]
-                else:
-                    return None
-            
-            else:
-                acilacak_per = en_iyi_per_bul(self.el, gorev)
-                if acilacak_per:
-                    return [t.id for t in acilacak_per]
-                else:
-                    return None
-        
-        else:
-            el_analizi = eli_analiz_et(self.el)
-            for per in el_analizi["seriler"]:
-                if Rules.genel_per_dogrula(per): return [t.id for t in per]
-            for per in el_analizi["uc_taslilar"] + el_analizi["dort_taslilar"]:
-                if Rules.genel_per_dogrula(per): return [t.id for t in per]
-            
-            aday_taslar = el_analizi["ikili_potansiyeller"]["seri"] + el_analizi["ikili_potansiyeller"]["kut"]
-            for i in range(3, len(self.el) + 1):
-                from itertools import combinations
-                for kombo in combinations(self.el, i):
-                    if Rules.genel_per_dogrula(list(kombo)):
-                        return [t.id for t in kombo]
-        
-        return None
+        # Tüm el açma mantığı dışarıdaki fonksiyona devredildi.
+        return el_ac_dene(self, game)
 
     @logger.log_function
     def ai_islem_yap_dene(self, game):
-        if not game.acilmis_oyuncular[self.index]: return None
-        if game.ilk_el_acan_tur.get(self.index, -1) >= game.tur_numarasi: return None
-
-        for per_sahibi_idx, perler in game.acilan_perler.items():
-            for per_idx, per in enumerate(perler):
-                joker_tasi = next((t for t in per if t.renk == "joker" and t.joker_yerine_gecen), None)
-                if joker_tasi:
-                    yerine_gecen = joker_tasi.joker_yerine_gecen
-                    eslesen_tas = next((t for t in self.el if t.renk == yerine_gecen.renk and t.deger == yerine_gecen.deger), None)
-                    if eslesen_tas:
-                        return {"action_type": "joker_degistir", "sahip_idx": per_sahibi_idx, "per_idx": per_idx, "tas_id": eslesen_tas.id}
-        
-        for tas in self.el:
-            # Kural: Joker, el açma/oyun bitirme dışında işleme yapılamaz.
-            if tas.renk == "joker":
-                continue 
-            
-            for per_sahibi_idx, perler in game.acilan_perler.items():
-                for per_idx, per in enumerate(perler):
-                    if Rules.islem_dogrula(per, tas):
-                        return {"action_type": "islem_yap", "sahip_idx": per_sahibi_idx, "per_idx": per_idx, "tas_id": tas.id}
-        
-        return None
+        # Tüm işleme yapma/joker değiştirme mantığı dışarıdaki fonksiyona devredildi.
+        return islem_yap_dene(self, game)
 
     @logger.log_function
     def karar_ver_ve_at(self, game):
-        if not self.el: return None
-        self.oyun_analizi = eli_analiz_et(self.el)
-        
-        # NOTE: Bu metot sadece taş atma hamlesini döndürmelidir, 
-        # El açma ve İşleme hamleleri ai_oynat.py'de bu fonksiyondan önce çağrılmalıdır.
-        atilan_tas = en_akilli_ati_bul(self.el, self.oyun_analizi, game.atilan_taslar)
-        return atilan_tas
+        # Tüm karar verme mantığı dışarıdaki fonksiyona devredildi.
+        return karar_ver_ve_at_wrapper(self, game)

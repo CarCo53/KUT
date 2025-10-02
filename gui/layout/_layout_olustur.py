@@ -1,4 +1,5 @@
-# gui/layout/_layout_olustur.py
+# carco53/kut/KUT-cd894003f2d58f59637d6a552aa651b1e1f8e2f6/gui/layout/_layout_olustur.py
+
 import tkinter as tk
 from log import logger
 from ._oyuncu_alani_olustur import _oyuncu_alani_olustur
@@ -18,18 +19,38 @@ def _layout_olustur(arayuz):
     deste_ve_atilan_cerceve = tk.Frame(arayuz.pencere)
     deste_ve_atilan_cerceve.pack(pady=5)
     
-    arayuz.joker_gosterim_frame = tk.LabelFrame(deste_ve_atilan_cerceve, text="Okey Taşı", padx=5, pady=5)
-    arayuz.joker_gosterim_frame.pack(side=tk.LEFT, padx=10)
+    # YENİ: İKİ JOKER GÖSTERİMİ İÇİN GENEL ÇERÇEVE OLUŞTURULDU
+    joker_genel_frame = tk.Frame(deste_ve_atilan_cerceve)
+    joker_genel_frame.pack(side=tk.LEFT, padx=10)
 
-    joker_temsil_frame = tk.Frame(arayuz.joker_gosterim_frame)
-    joker_temsil_frame.pack()
-    arayuz.okey_tasi_label = tk.Label(joker_temsil_frame, borderwidth=4, relief="solid")
-    arayuz.okey_tasi_label.pack(side=tk.LEFT)
-    arayuz.ok_label = tk.Label(joker_temsil_frame, text="=>", font=("Arial", 16, "bold"))
-    arayuz.ok_label.pack(side=tk.LEFT, padx=5)
-    arayuz.okey_temsilci_label = tk.Label(joker_temsil_frame)
-    arayuz.okey_temsilci_label.pack(side=tk.LEFT)
+    # JOKER 1 GÖSTERİMİ
+    arayuz.joker_gosterim_frame_1 = tk.LabelFrame(joker_genel_frame, text="Okey Taşı 1", padx=5, pady=5)
+    arayuz.joker_gosterim_frame_1.pack(side=tk.LEFT, padx=5)
 
+    joker_temsil_frame_1 = tk.Frame(arayuz.joker_gosterim_frame_1)
+    joker_temsil_frame_1.pack()
+    arayuz.okey_tasi_label_1 = tk.Label(joker_temsil_frame_1, borderwidth=4, relief="solid")
+    arayuz.okey_tasi_label_1.pack(side=tk.LEFT)
+    arayuz.ok_label_1 = tk.Label(joker_temsil_frame_1, text="=>", font=("Arial", 16, "bold"))
+    arayuz.ok_label_1.pack(side=tk.LEFT, padx=5)
+    arayuz.okey_temsilci_label_1 = tk.Label(joker_temsil_frame_1)
+    arayuz.okey_temsilci_label_1.pack(side=tk.LEFT)
+
+    # JOKER 2 GÖSTERİMİ
+    arayuz.joker_gosterim_frame_2 = tk.LabelFrame(joker_genel_frame, text="Okey Taşı 2", padx=5, pady=5)
+    arayuz.joker_gosterim_frame_2.pack(side=tk.LEFT, padx=5)
+
+    joker_temsil_frame_2 = tk.Frame(arayuz.joker_gosterim_frame_2)
+    joker_temsil_frame_2.pack()
+    arayuz.okey_tasi_label_2 = tk.Label(joker_temsil_frame_2, borderwidth=4, relief="solid")
+    arayuz.okey_tasi_label_2.pack(side=tk.LEFT)
+    arayuz.ok_label_2 = tk.Label(joker_temsil_frame_2, text="=>", font=("Arial", 16, "bold"))
+    arayuz.ok_label_2.pack(side=tk.LEFT, padx=5)
+    arayuz.okey_temsilci_label_2 = tk.Label(joker_temsil_frame_2)
+    arayuz.okey_temsilci_label_2.pack(side=tk.LEFT)
+
+
+    # DESTE VE ATILAN TAŞLAR
     arayuz.deste_frame = tk.LabelFrame(deste_ve_atilan_cerceve, text="Deste", padx=5, pady=5)
     arayuz.deste_frame.pack(side=tk.LEFT, padx=10)
     arayuz.atilan_frame = tk.LabelFrame(deste_ve_atilan_cerceve, text="Atılan Taşlar", padx=5, pady=5)

@@ -28,6 +28,7 @@ class Game:
         self.ilk_el_acan_tur = {}
         self.arayuz = None
         self.oyuncu_hamle_yapti = [False] * len(self.oyuncular)
+        self.acik_joker_temsilcileri = [] # YENİ: Masada açılan jokerlerin temsil ettiği taşları tutar
 
     @logger.log_function
     def baslat(self, gorev=None):
@@ -64,7 +65,13 @@ class Game:
     @logger.log_function
     def el_ac_joker_ile(self, oyuncu_index, secilen_taslar, joker, secilen_deger):
         joker.joker_yerine_gecen = secilen_deger
-        return ActionManager._eli_ac_ve_isle(self, oyuncu_index, secilen_taslar)
+        result = ActionManager._eli_ac_ve_isle(self, oyuncu_index, secilen_taslar)
+        
+        # YENİ MANTIK: Joker temsilcisini takip et
+        if result.get("status") == "success":
+             self.acik_joker_temsilcileri.append(secilen_deger)
+
+        return result
 
     @logger.log_function
     def _sira_ilerlet(self, yeni_index):

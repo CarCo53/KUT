@@ -1,7 +1,8 @@
-# engine/action_manager/joker_degistir.py
+# carco53/kut/KUT-cd894003f2d58f59637d6a552aa651b1e1f8e2f6/engine/action_manager/joker_degistir.py
 
 from log import logger
-from rules.rules_manager import Rules
+# from rules.joker_manager import get_okey_tasi # Hatalı import kaldırıldı
+from rules.rules_manager import Rules # Gerekli import eklendi
 
 @logger.log_function
 def joker_degistir(game, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id):
@@ -27,10 +28,15 @@ def joker_degistir(game, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
                 joker = per.pop(i)
                 joker.joker_yerine_gecen = None
                 
+                # Joker'i geri alan oyuncu joker'i eline alır, elindeki taşı atar (elinden çıkarır)
                 oyuncu.tas_al(joker)
                 oyuncu.tas_at(tas_id)
                 
                 per.append(degistirilecek_tas)
+                
+                # GLOBAL JOKER GÖSTERİMİNİ GÜNCELLE: Temsilciyi takip listesinden çıkar
+                if yerine_gecen in game.acik_joker_temsilcileri:
+                    game.acik_joker_temsilcileri.remove(yerine_gecen)
                 
                 oyuncu.el_sirala()
                 game._per_sirala(per)

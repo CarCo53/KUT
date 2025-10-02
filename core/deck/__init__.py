@@ -1,8 +1,6 @@
-# core/deck/__init__.py
 from core.tile import Tile
 from log import logger
 
-# Ayırdığımız fonksiyonları import et
 from .olustur import olustur
 from .karistir import karistir
 from .tas_cek import tas_cek
@@ -15,10 +13,6 @@ class Deck:
 
     def olustur(self):
         return olustur(self)
-
-    @property
-    def okey_tasi(self):
-        return None
 
     def karistir(self):
         return karistir(self)
