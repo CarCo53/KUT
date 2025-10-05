@@ -24,7 +24,7 @@ class Arayuz:
         self.oyun.arayuz = self
         self.pencere = tk.Tk()
         self.pencere.title("Okey Oyunu")
-        self.pencere.geometry("1400x900+0+0")
+        self.pencere.geometry("1600x1000+0+0")
         self.visuals = Visuals()
         self.visuals.yukle()
         self.statusbar = StatusBar(self)

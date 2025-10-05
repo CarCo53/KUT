@@ -3,6 +3,7 @@
 import tkinter as tk
 from core.game_state import GameState
 from log import logger
+import scoring # YENİ İMPORT
 
 def arayuzu_guncelle(arayuz):
     oyun = arayuz.oyun
@@ -90,10 +91,25 @@ def arayuzu_guncelle(arayuz):
     arayuz.button_manager.butonlari_guncelle(oyun.oyun_durumu)
 
     if oyun.oyun_durumu == GameState.BITIS:
+        # PUAN HESAPLAMA VE GÖSTERİMİ
+        puanlar = scoring.puan_hesapla(oyun.oyuncular)
+        
         kazanan_isim = "Bilinmiyor"
         if oyun.kazanan_index is not None:
             kazanan_isim = oyun.oyuncular[oyun.kazanan_index].isim
-        arayuz.statusbar.guncelle(f"Oyun Bitti! Kazanan: {kazanan_isim}. Yeni oyuna başlayabilirsiniz.")
+        
+        # Sadece kaybedenlerin puanlarını göster
+        puan_mesaji = ", ".join([f"{oyun.oyuncular[i].isim}: {puanlar[i]}" 
+                                 for i in range(len(oyun.oyuncular)) 
+                                 if oyun.kazanan_index is None or i != oyun.kazanan_index])
+        
+        if oyun.kazanan_index is None:
+             final_mesaj = "Deste bittiği için oyun sonlandı."
+        else:
+             final_mesaj = f"Oyun Bitti! Kazanan: {kazanan_isim}."
+
+        arayuz.statusbar.guncelle(f"{final_mesaj} Kalan Puanlar: {puan_mesaji}. Yeni oyuna başlayabilirsiniz.")
+        # AI döngüsü durdurulur.
     else:
         oyuncu_durum = "Açılmış" if oyun.acilmis_oyuncular[0] else f"Görev: {oyun.mevcut_gorev}"
         sira_bilgi = f"Sıra: {oyun.oyuncular[oyun.sira_kimde_index].isim}"
@@ -104,5 +120,6 @@ def arayuzu_guncelle(arayuz):
         elif oyun.oyun_durumu == GameState.ILK_TUR:
             sira_bilgi += " (Taş atarak başlayın)"
         arayuz.statusbar.guncelle(f"{sira_bilgi} | {oyuncu_durum}")
-
-    arayuz.pencere.after(750, arayuz.ai_oynat)
+        
+        # OYUN BİTMEDİYSE AI DÖNGÜSÜNÜ DEVAM ETTİR
+        arayuz.pencere.after(750, arayuz.ai_oynat)

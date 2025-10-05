@@ -12,11 +12,15 @@ def _per_deger_hesapla(per):
 
 @logger.log_function
 def en_iyi_per_bul(el, gorev):
-    gorev_tipi, min_sayi = gorev.split(' ') if ' ' in gorev else (gorev, 0)
-    min_sayi = int(min_sayi) if min_sayi else 0
+    gorev_tipi, min_sayi_str = gorev.split(' ') if ' ' in gorev else (gorev, 0)
+    min_sayi = int(min_sayi_str) if min_sayi_str else 0
     
     jokerler = [t for t in el if t.renk == 'joker']
     normal_taslar = [t for t in el if t.renk != 'joker']
+    
+    # KRİTİK KURAL: KOLAY GÖREVLERDE (Seri 5'e kadar) MAX 1 JOKER KULLAN
+    max_joker_kullanimi = 1 
+    joker_limiti = min(len(jokerler), max_joker_kullanimi)
     
     aday_perler = [] # Tüm geçerli adayları tutmak için liste
     
@@ -33,10 +37,14 @@ def en_iyi_per_bul(el, gorev):
                 for j in range(i + min_sayi - 1, len(benzersiz_degerler)):
                     aday_degerler = benzersiz_degerler[i:j+1]
                     bosluk = (aday_degerler[-1] - aday_degerler[0] + 1) - len(aday_degerler)
-                    if bosluk <= len(jokerler):
-                        aday_per = [t for t in tas_listesi if t.deger in aday_degerler] + jokerler[:bosluk]
+                    
+                    # Joker kontrolü: min(Joker limiti, bu per için gereken boşluk)
+                    joker_kullan = min(joker_limiti, bosluk) 
+
+                    if joker_kullan == bosluk:
+                        aday_per = [t for t in tas_listesi if t.deger in aday_degerler] + jokerler[:joker_kullan]
                         if Rules.per_dogrula(aday_per, gorev):
-                            aday_perler.append(aday_per) # Hemen döndürmek yerine listeye ekle
+                            aday_perler.append(aday_per)
     
     elif "Küt" in gorev:
         deger_gruplari = defaultdict(list)
@@ -44,10 +52,15 @@ def en_iyi_per_bul(el, gorev):
             deger_gruplari[tas.deger].append(tas)
 
         for deger in deger_gruplari:
-            if len(deger_gruplari[deger]) + len(jokerler) >= min_sayi:
-                aday_per = deger_gruplari[deger] + jokerler[:min_sayi - len(deger_gruplari[deger])]
+            kalan_yer = 4 - len(deger_gruplari[deger])
+            
+            # Joker kullanımı: min(Joker limiti, kalan yer)
+            joker_kullan = min(joker_limiti, kalan_yer) 
+
+            if len(deger_gruplari[deger]) + joker_kullan >= min_sayi:
+                aday_per = deger_gruplari[deger] + jokerler[:joker_kullan]
                 if Rules.per_dogrula(aday_per, gorev):
-                    aday_perler.append(aday_per) # Hemen döndürmek yerine listeye ekle
+                    aday_perler.append(aday_per)
     
     elif gorev == "Çift":
         # Çift görevi için mevcut strateji kullanılır, sonuçlar aday listesine eklenir.
@@ -56,11 +69,13 @@ def en_iyi_per_bul(el, gorev):
             aday_perler.append(acilacak_per)
 
 
-    # Geri kalan kombinasyonlar da kontrol edilir
+    # Geri kalan kombinasyonlar da kontrol edilir (Joker limiti burada da uygulanmalı)
     for boyut in range(min_sayi, len(el) + 1):
         for kombo in combinations(el, boyut):
-            if Rules.per_dogrula(list(kombo), gorev):
-                aday_perler.append(list(kombo))
+            kombo_jokerler = [t for t in kombo if t.renk == 'joker']
+            if len(kombo_jokerler) <= joker_limiti: # Tekrar joker limitini uygula
+                 if Rules.per_dogrula(list(kombo), gorev):
+                    aday_perler.append(list(kombo))
     
     
     # Tüm adaylar arasından en yüksek değere sahip olanı seç (Stratejik gereksinim)

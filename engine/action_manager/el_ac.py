@@ -9,10 +9,9 @@ def el_ac(game, oyuncu_index, tas_id_list):
     secilen_taslar = [tas for tas in oyuncu.el if tas.id in tas_id_list]
     
     if any(t.renk == "joker" for t in secilen_taslar):
-        if game.mevcut_gorev == "Çift":
-            return _eli_ac_ve_isle(game, oyuncu_index, secilen_taslar)
         
         joker_kontrol_sonucu = JokerManager.el_ac_joker_kontrolu(game, oyuncu, secilen_taslar)
+        
         if joker_kontrol_sonucu["status"] == "joker_choice_needed":
             return joker_kontrol_sonucu
         if joker_kontrol_sonucu["status"] == "invalid_joker_move":

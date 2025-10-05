@@ -3,6 +3,7 @@
 from log import logger
 from core.game_state import GameState
 from rules.rules_manager import Rules
+from core.tile import Tile 
 
 @logger.log_function
 def _eli_ac_ve_isle(game, oyuncu_index, secilen_taslar):
@@ -12,12 +13,10 @@ def _eli_ac_ve_isle(game, oyuncu_index, secilen_taslar):
     
     # İlk el açılışına özel kurallar
     if is_ilk_acilis:
-        # "Çift" görevi için özel kontrol
         if game.mevcut_gorev == "Çift" and len(secilen_taslar) != 8:
             return {"status": "fail", "message": "Çift görevi için tam olarak 8 taş (4 çift) açmalısınız."}
         dogrulama_sonucu = Rules.per_dogrula(secilen_taslar, game.mevcut_gorev)
     else:
-        # Eli zaten açık oyuncular için genel per doğrulama
         dogrulama_sonucu = Rules.genel_per_dogrula(secilen_taslar)
 
     if dogrulama_sonucu:
@@ -28,7 +27,17 @@ def _eli_ac_ve_isle(game, oyuncu_index, secilen_taslar):
             # YENİ MANTIK: GÖREV BAŞARIYLA TAMAMLANDIĞINDA SIRALAMAYI NORMALE DÖNDÜR
             if game.mevcut_gorev == "Çift":
                 oyuncu.is_cift_gorevi = False
-        
+                
+                # ÇİFT GÖREVİNDE JOKER TEMSİLCİSİNİ KAYDET (Global gösterim için)
+                jokerler_in_per = [t for t in secilen_taslar if t.renk == 'joker']
+                
+                if jokerler_in_per:
+                    for joker in jokerler_in_per:
+                         # Joker'in temsilcisi zaten atanmış olmalı (el_ac_joker_ile ile)
+                         if joker.joker_yerine_gecen:
+                              game.acik_joker_temsilcileri.append(joker.joker_yerine_gecen)
+
+
         # Eğer karma per açma durumu varsa
         if isinstance(dogrulama_sonucu, tuple):
             for per in dogrulama_sonucu:
@@ -42,7 +51,6 @@ def _eli_ac_ve_isle(game, oyuncu_index, secilen_taslar):
             game._per_sirala(secilen_taslar)
             game.acilan_perler[oyuncu_index].append(secilen_taslar)
 
-        # Yeni sıralama ayarı, el_sirala fonksiyonu içinde uygulanacak.
         oyuncu.el_sirala()
         game.oyun_durumu = GameState.NORMAL_TAS_ATMA
         return {"status": "success"}

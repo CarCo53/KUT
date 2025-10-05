@@ -1,8 +1,7 @@
-# carco53/kut/KUT-cd894003f2d58f59637d6a552aa651b1e1f8e2f6/engine/action_manager/joker_degistir.py
+# engine/action_manager/joker_degistir.py
 
 from log import logger
-# from rules.joker_manager import get_okey_tasi # Hatalı import kaldırıldı
-from rules.rules_manager import Rules # Gerekli import eklendi
+from rules.rules_manager import Rules
 
 @logger.log_function
 def joker_degistir(game, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id):
@@ -23,29 +22,44 @@ def joker_degistir(game, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
     for i, per_tasi in enumerate(per):
         if per_tasi.renk == "joker" and per_tasi.joker_yerine_gecen:
             yerine_gecen = per_tasi.joker_yerine_gecen
+            
+            # Değiştirme kontrolü: SERİ/KÜT'te tam eşleşme VEYA ÇİFT'te sembolik alım
+            is_valid_swap = False
             if yerine_gecen.renk == degistirilecek_tas.renk and yerine_gecen.deger == degistirilecek_tas.deger:
+                 is_valid_swap = True
+            elif yerine_gecen.renk == "joker" and degistirilecek_tas.renk != "joker":
+                 is_valid_swap = True 
+            
+            if is_valid_swap:
                 
                 joker = per.pop(i)
+                
+                # KRİTİK DÜZELTME: Global temsilciyi listeden KALDIR (Senkronizasyonun Anahtarı)
+                # Bu, Joker'in geri alındığında Okey Taşı 2'nin tekrar '?' olmasına neden olur.
+                if yerine_gecen in game.acik_joker_temsilcileri:
+                    game.acik_joker_temsilcileri.remove(yerine_gecen)
+                
                 joker.joker_yerine_gecen = None
                 
-                # Joker'i geri alan oyuncu joker'i eline alır, elindeki taşı atar (elinden çıkarır)
                 oyuncu.tas_al(joker)
                 oyuncu.tas_at(tas_id)
                 
                 per.append(degistirilecek_tas)
                 
-                # GLOBAL JOKER GÖSTERİMİNİ GÜNCELLE: Temsilciyi takip listesinden çıkar
-                if yerine_gecen in game.acik_joker_temsilcileri:
-                    game.acik_joker_temsilcileri.remove(yerine_gecen)
-                
                 oyuncu.el_sirala()
                 game._per_sirala(per)
                 return {"status": "success"}
                 
-    # KRİTİK HATA MESAJI DÜZELTMESİ (Joker'i alamama nedenini açıklar)
-    temsil_edilenler = [f"{t.joker_yerine_gecen.renk.capitalize()} {t.joker_yerine_gecen.deger}" 
-                        for t in per if t.renk == "joker" and t.joker_yerine_gecen]
-    
+    # KRİTİK HATA MESAJI DÜZELTMESİ
+    temsil_edilenler = []
+    for t in per:
+        if t.renk == "joker" and t.joker_yerine_gecen:
+            yerine_gecen = t.joker_yerine_gecen
+            if yerine_gecen.renk == "joker":
+                 temsil_edilenler.append("Çift Jokeri")
+            else:
+                 temsil_edilenler.append(f"{yerine_gecen.renk.capitalize()} {yerine_gecen.deger}")
+
     if temsil_edilenler:
         hata_mesaji = f"Seçilen taş masadaki jokerin temsil ettiği taşla ({', '.join(temsil_edilenler)}) eşleşmiyor."
     else:

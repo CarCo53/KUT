@@ -1,4 +1,5 @@
-# gui/buttons.py
+# gui/buttons/__init__.py
+
 import tkinter as tk
 from core.game_state import GameState
 from log import logger
@@ -35,6 +36,10 @@ class ButtonManager:
         for btn in self.butonlar.values():
             btn.config(state=tk.DISABLED)
         
+        if oyun_durumu == GameState.BITIS:
+             self.butonlar["yeni_oyun"].config(state=tk.NORMAL)
+             return
+             
         oyun = self.arayuz.oyun
         sira_bende = oyun.sira_kimde_index == 0
         
