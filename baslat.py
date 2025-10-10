@@ -29,6 +29,7 @@ def baslat_oyun(game, gorev=None):
             oyuncu.tas_al(game.deste.tas_cek())
         
     game.oyun_durumu = GameState.ILK_TUR
+    game.acik_joker_temsilcileri = [] # YENİ EKLENEN: Masadaki joker temsilcilerini sıfırla
     game.atilan_taslar = []
     game.acilan_perler = {i: [] for i in range(len(game.oyuncular))}
     game.turda_tas_cekildi = [False] * len(game.oyuncular)

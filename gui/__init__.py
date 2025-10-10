@@ -71,7 +71,7 @@ class Arayuz:
             
         # 2. Temsilci bilgisini göster
         if temsilci_index < len(temsilciler):
-            # Masada açılmış Jokerin temsilci taşı varsa göster
+            # Masada açılmış Jokerin temsilci taşı varsa göster (Veri var)
             temsilci_tas = temsilciler[temsilci_index]
             temsilci_gorseli = self.visuals.tas_resimleri.get(temsilci_tas.imaj_adi)
             
@@ -79,10 +79,13 @@ class Arayuz:
             temsilci_label.config(image=temsilci_gorseli, text="", borderwidth=0)
             temsilci_label.image = temsilci_gorseli
         else:
-            # Masada Joker açılmamışsa veya sıra gelmemişse '?' göster
-            # Masada açık olan Joker sayısı 1 ise, ikinci alanda mutlaka '?' olmalıdır.
-            ok_label.config(text="=>", font=("Arial", 16, "bold"))
-            temsilci_label.config(image=None, text="?", borderwidth=0)
+            # Masada Joker açılmamışsa veya sıfırlanmışsa (Veri yok)
+            
+            # KRİTİK DÜZELTME: Görseli ve metni tamamen temizle
+            ok_label.config(text="") 
+            temsilci_label.config(image=None, text="", borderwidth=0)
+            temsilci_label.image = None # Bellek temizliğini garanti et
+
             
     # arayuzu_guncelle metodu önceki turda doğru olduğu için tekrar eklemeye gerek yok.
     # Bu düzeltme, her iki Joker alanı için de doğru placeholder ('?') gösterimini sağlar.

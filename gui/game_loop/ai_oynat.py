@@ -142,4 +142,4 @@ def ai_oynat(arayuz):
                     oyun.kazanan_index = sira_index
             arayuz.arayuzu_guncelle()
 
-    arayuz.pencere.after(750, arayuz.ai_oynat)
+    # arayuz.pencere.after(750, arayuz.ai_oynat) <-- Bu satır silindi.
