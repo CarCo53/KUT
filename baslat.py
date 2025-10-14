@@ -24,7 +24,7 @@ def baslat_oyun(game, gorev=None):
         # YENİ EKLENEN MANTIK: Oyuncunun Çift görevi bayrağını ayarla
         oyuncu.is_cift_gorevi = is_cift_gorevi 
         
-        tas_sayisi = 14 if i == game.sira_kimde_index else 13
+        tas_sayisi = 25 if i == game.sira_kimde_index else 13
         for _ in range(tas_sayisi):
             oyuncu.tas_al(game.deste.tas_cek())
         
