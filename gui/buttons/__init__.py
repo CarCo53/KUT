@@ -11,6 +11,7 @@ from gui.buttons.desteden_cek import desteden_cek
 from gui.buttons.el_ac import el_ac
 from gui.buttons.tas_at import tas_at
 from gui.buttons.yeni_oyun import yeni_oyun
+from gui.buttons.joker_al import joker_al # YENİ IMPORT
 
 class ButtonManager:
     @logger.log_function
@@ -26,6 +27,7 @@ class ButtonManager:
         self.butonlar["desteden_cek"] = tk.Button(frame, text="Desteden Çek", command=self.desteden_cek)
         self.butonlar["el_ac"] = tk.Button(frame, text="Elini Aç", command=self.el_ac)
         self.butonlar["tas_at"] = tk.Button(frame, text="Taş At", command=self.tas_at)
+        self.butonlar["joker_al"] = tk.Button(frame, text="Joker Al", command=self.joker_al) # YENİ BUTON
         self.butonlar["yeni_oyun"] = tk.Button(frame, text="Yeni Oyun", command=self.yeni_oyun)
         
         for btn in self.butonlar.values():
@@ -48,10 +50,17 @@ class ButtonManager:
         elif oyun_durumu == GameState.NORMAL_TUR and sira_bende:
             self.butonlar["el_ac"].config(state=tk.NORMAL)
             self.butonlar["desteden_cek"].config(state=tk.NORMAL)
+            # Eğer masada joker varsa, alım butonu aktif edilmeli
+            if oyun.acik_joker_temsilcileri: 
+                 self.butonlar["joker_al"].config(state=tk.NORMAL)
+                 
         elif oyun_durumu == GameState.NORMAL_TAS_ATMA and sira_bende:
             self.butonlar["tas_at"].config(state=tk.NORMAL)
             self.butonlar["el_ac"].config(state=tk.NORMAL)
-            
+            # Eğer masada joker varsa, alım butonu aktif edilmeli
+            if oyun.acik_joker_temsilcileri: 
+                 self.butonlar["joker_al"].config(state=tk.NORMAL)
+                 
         elif oyun_durumu == GameState.ATILAN_TAS_DEGERLENDIRME:
             degerlendiren_ben_miyim = oyun.atilan_tas_degerlendirici and oyun.atilan_tas_degerlendirici.siradaki() == 0
             if degerlendiren_ben_miyim:
@@ -76,6 +85,11 @@ class ButtonManager:
     @logger.log_function
     def tas_at(self):
         tas_at(self.arayuz)
+        
+    # EKSİK OLAN VE ŞİMDİ EKLENEN METOT:
+    @logger.log_function
+    def joker_al(self):
+        joker_al(self.arayuz) 
 
     @logger.log_function
     def yeni_oyun(self):

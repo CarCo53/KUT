@@ -35,7 +35,6 @@ def joker_degistir(game, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
                 joker = per.pop(i)
                 
                 # KRİTİK DÜZELTME: Global temsilciyi listeden KALDIR (Senkronizasyonun Anahtarı)
-                # Bu, Joker'in geri alındığında Okey Taşı 2'nin tekrar '?' olmasına neden olur.
                 if yerine_gecen in game.acik_joker_temsilcileri:
                     game.acik_joker_temsilcileri.remove(yerine_gecen)
                 
@@ -50,8 +49,11 @@ def joker_degistir(game, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
                 game._per_sirala(per)
                 return {"status": "success"}
                 
-    # KRİTİK HATA MESAJI DÜZELTMESİ
+    # --- Hata Mesajı Oluşturma (Joker değiştirme başarısız oldu) ---
     temsil_edilenler = []
+    per_renk = None
+    per_degerleri = []
+    
     for t in per:
         if t.renk == "joker" and t.joker_yerine_gecen:
             yerine_gecen = t.joker_yerine_gecen
@@ -59,9 +61,21 @@ def joker_degistir(game, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
                  temsil_edilenler.append("Çift Jokeri")
             else:
                  temsil_edilenler.append(f"{yerine_gecen.renk.capitalize()} {yerine_gecen.deger}")
+                 if per_renk is None: per_renk = yerine_gecen.renk
+                 per_degerleri.append(f"Joker({yerine_gecen.deger})")
+        elif t.renk != "joker":
+            if per_renk is None: per_renk = t.renk
+            per_degerleri.append(str(t.deger))
+
+    # Per gösterimi için birleştirme
+    per_gosterim_str = f"{per_renk.capitalize()} ({'-'.join(per_degerleri)})" if per_renk else f"Per ({'-'.join(per_degerleri)})"
 
     if temsil_edilenler:
-        hata_mesaji = f"Seçilen taş masadaki jokerin temsil ettiği taşla ({', '.join(temsil_edilenler)}) eşleşmiyor."
+        secilen_tas_adi = f"{degistirilecek_tas.renk.capitalize()} {degistirilecek_tas.deger}"
+        
+        # Kullanıcının istediği formata yakın bir çıktı:
+        hata_mesaji = (f"Seçilen taş ({secilen_tas_adi}), masadaki {per_gosterim_str} "
+                       f"perindeki jokerin temsil ettiği taşla ({', '.join(temsil_edilenler)}) eşleşmiyor.")
     else:
         hata_mesaji = "Geçersiz joker değiştirme hamlesi. Seçili per'de alınabilir joker yok."
             

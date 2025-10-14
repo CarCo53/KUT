@@ -1,5 +1,3 @@
-# gui/__init__.py
-
 import tkinter as tk
 from gui.visuals import Visuals
 from gui.buttons import ButtonManager
@@ -19,6 +17,7 @@ from .game_loop.ai_oynat import ai_oynat
 
 class Arayuz:
     @logger.log_function
+    # HATA DÜZELTİLDİ: Sadece 'oyun' argümanı almalı. tk.Tk() içeride yaratılmalı.
     def __init__(self, oyun: Game):
         self.oyun = oyun
         self.oyun.arayuz = self
@@ -42,14 +41,11 @@ class Arayuz:
     @logger.log_function
     def arayuzu_guncelle(self):
         # KRİTİK JOKER/OKEY TAŞI GÖSTERİMİ
-        # Sadece masada açılmış Jokerlerin temsil ettiği taşları Game objesinden alıyoruz. (Performans Optimizasyonu)
+        # Sadece masada açılmış Jokerlerin temsil ettiği taşları Game objesinden alıyoruz. 
         temsilciler = self.oyun.acik_joker_temsilcileri
         joker_gorseli = self.visuals.tas_resimleri.get("joker.png")
         
-        # Joker Alanı 1'i güncelle
         self._guncelle_joker_alani(1, joker_gorseli, temsilciler, 0)
-        
-        # Joker Alanı 2'yi güncelle
         self._guncelle_joker_alani(2, joker_gorseli, temsilciler, 1)
 
         # UI'ın geri kalanını güncellemek için ayrı fonksiyona devret
@@ -71,25 +67,21 @@ class Arayuz:
             
         # 2. Temsilci bilgisini göster
         if temsilci_index < len(temsilciler):
-            # Masada açılmış Jokerin temsilci taşı varsa göster (Veri var)
             temsilci_tas = temsilciler[temsilci_index]
             temsilci_gorseli = self.visuals.tas_resimleri.get(temsilci_tas.imaj_adi)
             
             ok_label.config(text="=>", font=("Arial", 16, "bold"))
             temsilci_label.config(image=temsilci_gorseli, text="", borderwidth=0)
             temsilci_label.image = temsilci_gorseli
-        else:
-            # Masada Joker açılmamışsa veya sıfırlanmışsa (Veri yok)
             
-            # KRİTİK DÜZELTME: Görseli ve metni tamamen temizle
+            # Tıklama olayı KALDIRILDI ve Unbind çağrısı kaldırıldı.
+            temsilci_label.unbind("<Button-1>") 
+        else:
             ok_label.config(text="") 
             temsilci_label.config(image=None, text="", borderwidth=0)
-            temsilci_label.image = None # Bellek temizliğini garanti et
-
+            temsilci_label.image = None
+            temsilci_label.unbind("<Button-1>")
             
-    # arayuzu_guncelle metodu önceki turda doğru olduğu için tekrar eklemeye gerek yok.
-    # Bu düzeltme, her iki Joker alanı için de doğru placeholder ('?') gösterimini sağlar.
-    
     @logger.log_function
     def tas_sec(self, tas_id):
         return tas_sec(self, tas_id)

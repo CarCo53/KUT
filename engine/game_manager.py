@@ -43,8 +43,8 @@ class Game:
         return ActionManager.islem_yap(self, isleyen_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
         
     @logger.log_function
-    def joker_degistir(self, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id):
-        return ActionManager.joker_degistir(self, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
+    def joker_degistir_global(self, degistiren_oyuncu_idx, temsilci_tas): # GÜNCEL METOT
+        return ActionManager.joker_degistir_global(self, degistiren_oyuncu_idx, temsilci_tas)
 
     @logger.log_function
     def tas_at(self, oyuncu_index, tas_id):
@@ -94,4 +94,10 @@ class Game:
                 per.sort(key=lambda t: (t.joker_yerine_gecen or t).deger or 0)
     
     def oyun_bitti_mi(self):
-        return self.oyun_durumu == GameState.BITIS or not self.deste.taslar
+        # KRİTİK DÜZELTME: Eğer deste boşsa ve durum BITIS değilse, durumu BITIS'e geçir.
+        if not self.deste.taslar and self.oyun_durumu != GameState.BITIS:
+            self.oyun_durumu = GameState.BITIS
+            self.kazanan_index = None
+            logger.info("Oyun durumu, deste boş olduğu için BITIS olarak güncellendi.")
+            
+        return self.oyun_durumu == GameState.BITIS or not self.deste.taslar # <-- Bu satır teknik olarak BITIS kontrolünü yapar.

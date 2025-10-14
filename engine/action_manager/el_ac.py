@@ -6,6 +6,13 @@ from engine.action_manager._eli_ac_ve_isle import _eli_ac_ve_isle
 @logger.log_function
 def el_ac(game, oyuncu_index, tas_id_list):
     oyuncu = game.oyuncular[oyuncu_index]
+    
+    # Yeni Kural Kontrolü: Oyuncu elini açmışsa ve bu, ilk el açma turuysa, tekrar açamaz.
+    if game.acilmis_oyuncular[oyuncu_index]:
+        el_acan_tur = game.ilk_el_acan_tur.get(oyuncu_index)
+        if el_acan_tur == game.tur_numarasi:
+            return {"status": "fail", "message": "Görevini tamamladıktan sonra bu turda sadece taş atabilirsiniz."}
+            
     secilen_taslar = [tas for tas in oyuncu.el if tas.id in tas_id_list]
     
     if any(t.renk == "joker" for t in secilen_taslar):
