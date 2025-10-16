@@ -36,7 +36,7 @@ def en_akilli_ati_bul(el, el_analizi, atilan_taslar):
 
         if tas.id in potansiyel_seri_kut_taslari and joker_sayisi > 0:
             # Maksimum koruma puanı (AI bu taşı asla atmamalı)
-            puan += 500000 
+            puan += 5000 
             logger.debug(f"Taş {tas.renk}_{tas.deger} Joker'le tamamlanabilir potansiyel nedeniyle YÜKSEK PUAN aldı.")
         
         # 3. MEVCUT BASİT PUANLAMA (Yakınlık ve eşleşme)

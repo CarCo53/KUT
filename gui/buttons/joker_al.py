@@ -43,15 +43,37 @@ def joker_al(arayuz):
         arayuz.statusbar.guncelle(f"Seçtiğiniz {secili_tas.renk.capitalize()} {secili_tas.deger} masadaki açık jokerin temsil ettiği taşla eşleşmiyor.")
         return
 
-    # 2. Global Joker Değiştirme işlemini başlat
-    # NOT: joker_degistir_global fonskiyonu, per içindeki jokeri bulma, takas etme ve 
-    # acik_joker_temsilcileri listesinden silme işlemlerini zaten yapıyor.
-    sonuc = oyun.joker_degistir_global(0, temsilci_tas)
+    # 2. Hangi per içinde olduğunu bul ve ActionManager.joker_degistir'i çağır.
+    sonuc = None
+    joker_bulundu = False
+    
+    for per_sahibi_idx, perler in oyun.acilan_perler.items():
+        for per_idx, per in enumerate(perler):
+            for i, per_tasi in enumerate(per):
+                # Jokerin temsil ettiği taş, temsilci_tas ile tam olarak aynı Tile nesnesi mi?
+                if per_tasi.renk == "joker" and per_tasi.joker_yerine_gecen == temsilci_tas:
+                    
+                    # Jokerin bulunduğu per ve sahibi bulundu, işlemi başlat.
+                    # oyun.joker_degistir(degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
+                    sonuc = oyun.joker_degistir(0, per_sahibi_idx, per_idx, secili_tas_id) 
+                    joker_bulundu = True
+                    break
+            if joker_bulundu:
+                break
+        if joker_bulundu:
+            break
 
-    if sonuc.get("status") == "success":
-        arayuz.secili_tas_idler = []
-        arayuz.statusbar.guncelle(sonuc["message"])
+    if joker_bulundu:
+        if sonuc and sonuc.get("status") == "success":
+            arayuz.secili_tas_idler = []
+            # Başarı mesajı: joker_degistir'den gelirse onu kullan, yoksa genel mesajı kullan
+            arayuz.statusbar.guncelle(sonuc.get("message", f"Joker başarıyla değiştirildi: {temsilci_tas.renk.capitalize()} {temsilci_tas.deger}!"))
+        else:
+            arayuz.statusbar.guncelle(sonuc.get("message", "Joker alma işleminde bilinmeyen bir hata oluştu."))
     else:
-        arayuz.statusbar.guncelle(sonuc.get("message", "Joker alma işleminde bilinmeyen bir hata oluştu."))
-        
+        # Bu duruma gelmemesi beklenir, çünkü temsilci_tas oyun.acik_joker_temsilcileri içinden bulundu.
+        arayuz.statusbar.guncelle("Masada bu temsilciye sahip aktif bir joker bulunamadı.")
+
+
+    # KRİTİK EKLENTİ: Joker başarıyla değiştirildiğinde arayüzü güncelle
     arayuz.arayuzu_guncelle()

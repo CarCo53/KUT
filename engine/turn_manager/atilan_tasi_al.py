@@ -17,15 +17,12 @@ def atilan_tasi_al(game, oyuncu_index):
     game.turda_tas_cekildi[oyuncu_index] = True
     asil_sira_index = game.atilan_tas_degerlendirici.asilin_sirasi()
     if oyuncu_index == asil_sira_index:
-        # Sıradaki oyuncu taşı aldıysa sıra ona geçer
         game._sira_ilerlet(oyuncu_index)
         game.oyun_durumu = GameState.NORMAL_TAS_ATMA
     else:
-        # Sırası olmayan biri aldıysa ceza taşı çeker ama oyun akışı değişmez!
         ceza_tas = game.deste.tas_cek()
         if ceza_tas:
             alici_oyuncu.tas_al(ceza_tas)
-        # Sıra, taş atan oyuncudan sonraki oyuncuya geçer
         game._sira_ilerlet(asil_sira_index)
         game.oyun_durumu = GameState.NORMAL_TUR
     alici_oyuncu.el_sirala()

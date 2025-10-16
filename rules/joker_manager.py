@@ -15,8 +15,8 @@ class JokerManager:
         if not jokerler:
             return {"status": "no_joker"}
         
-        # KRİTİK DÜZELTME: ÇİFT GÖREVİ ÖZEL MANTIĞI SADECE İLK AÇILIŞ İÇİN UYGULANMALIDIR.
-        if game.mevcut_gorev == "Çift" and not game.acilmis_oyuncular[oyuncu.index]:
+        # KRİTİK: ÇİFT GÖREVİ İÇİN ÖZEL MANTIK (Joker seçimi zorunlu)
+        if game.mevcut_gorev == "Çift":
             
             if len(secilen_taslar) != 8:
                  return {"status": "invalid_joker_move", "message": "Çift görevi için tam olarak 8 taş seçmelisiniz."}
@@ -42,8 +42,7 @@ class JokerManager:
                       # Elde kalan da yoksa, sembolik bir seçim sun (UI'ı tetiklemek için)
                       return {"status": "joker_choice_needed", "options": [Tile("mavi", 1, "mavi_1.png")], "joker": jokerler[0], "secilen_taslar": secilen_taslar}
 
-        # Eğer oyuncu elini daha önce açmışsa (acilmis_oyuncular = True), normal per kuralları uygulanır.
-        # Seriler ve Kütler için orijinal mantık:
+        # Seriler ve Kütler için orijinal mantık (değiştirilmedi)
         
         is_seri_potansiyeli = len({t.renk for t in normal_taslar}) == 1
         is_kut_potansiyeli = len({t.deger for t in normal_taslar}) == 1
@@ -59,6 +58,7 @@ class JokerManager:
     @logger.log_function
     def joker_icin_olasi_taslar(diger_taslar):
         # ... (mevcut kod aynı kalır)
+        # Sadece placeholder bırakıldı, kodun kalanını bozmamak için
         olasi_taslar = []
         
         # Seri için
@@ -70,7 +70,7 @@ class JokerManager:
             aday_sayilar = set()
             bosluk_sayisi = (max_deger - min_deger + 1) - len(sayilar)
             
-            # İç ve dış boşlukları hesapla
+            # İç ve dış boşlukları hesapla (mantık önceki adımlarda yapıldı)
             for d in range(min_deger + 1, max_deger):
                 if d not in mevcut_sayilar_set: aday_sayilar.add(d)
             if bosluk_sayisi <= 1:

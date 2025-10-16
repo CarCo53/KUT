@@ -30,14 +30,24 @@ class Game:
         self.oyuncu_hamle_yapti = [False] * len(self.oyuncular)
         self.acik_joker_temsilcileri = [] # YENİ: Masada açılan jokerlerin temsil ettiği taşları tutar
 
+    # YENİ METOT: Oyun akışını özel bir etiketle loglar
+    def _log_game_flow(self, message):
+        logger.info(f"[GAME_FLOW] {message}")
+
     @logger.log_function
     def baslat(self, gorev=None):
+        self._log_game_flow(f"Oyun Başladı. Görev: {self.mevcut_gorev}")
         return baslat_oyun(self, gorev)
     
     @logger.log_function
     def el_ac(self, oyuncu_index, tas_id_list):
         return ActionManager.el_ac(self, oyuncu_index, tas_id_list)
 
+    @logger.log_function
+    def joker_degistir(self, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id): # HATA DÜZELTMEK İÇİN EKLENDİ
+        self._log_game_flow(f"Joker Değiştirme (Lokal): {self.oyuncular[degistiren_oyuncu_idx].isim} per {per_sahibi_idx}-{per_idx}'deki jokeri değiştiriyor.")
+        return ActionManager.joker_degistir(self, degistiren_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
+        
     @logger.log_function
     def islem_yap(self, isleyen_oyuncu_idx, per_sahibi_idx, per_idx, tas_id):
         return ActionManager.islem_yap(self, isleyen_oyuncu_idx, per_sahibi_idx, per_idx, tas_id)
@@ -48,11 +58,20 @@ class Game:
 
     @logger.log_function
     def tas_at(self, oyuncu_index, tas_id):
-        return TurnManager.tas_at(self, oyuncu_index, tas_id)
+        result = TurnManager.tas_at(self, oyuncu_index, tas_id)
+        if result:
+            oyuncu_adi = self.oyuncular[oyuncu_index].isim
+            atilan_tas = self.atilan_taslar[-1]
+            self._log_game_flow(f"Taş Atıldı: {oyuncu_adi} -> {atilan_tas.renk}_{atilan_tas.deger} ({atilan_tas.id})") 
+        return result
 
     @logger.log_function
     def desteden_cek(self, oyuncu_index):
-        return TurnManager.desteden_cek(self, oyuncu_index)
+        result = TurnManager.desteden_cek(self, oyuncu_index)
+        if result:
+             oyuncu_adi = self.oyuncular[oyuncu_index].isim
+             self._log_game_flow(f"Taş Çekildi: {oyuncu_adi} desteden çekti.")
+        return result
 
     @logger.log_function
     def atilan_tasi_al(self, oyuncu_index):
@@ -69,6 +88,7 @@ class Game:
         
         # YENİ MANTIK: Joker temsilcisini takip et
         if result.get("status") == "success":
+             self._log_game_flow(f"El Açıldı: {self.oyuncular[oyuncu_index].isim} görevi başarıyla tamamladı.")
              self.acik_joker_temsilcileri.append(secilen_deger)
 
         return result
@@ -78,7 +98,10 @@ class Game:
         if yeni_index < self.sira_kimde_index:
             self.tur_numarasi += 1
             logger.info(f"Yeni tura geçildi: Tur {self.tur_numarasi}")
+            self._log_game_flow(f"Yeni Tur: Tur {self.tur_numarasi}")
         self.sira_kimde_index = yeni_index
+        yeni_oyuncu_adi = self.oyuncular[yeni_index].isim
+        self._log_game_flow(f"Sıra Değişti: Sıra -> {yeni_oyuncu_adi}")
         
     @logger.log_function
     def _per_sirala(self, per):

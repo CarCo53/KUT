@@ -1,4 +1,4 @@
-# engine/action_manager/_eli_ac_ve_isle.py
+# engine/action_manager/_eli_ac_ve_isle.py dosyası güncelleniyor
 
 from log import logger
 from core.game_state import GameState
@@ -29,13 +29,13 @@ def _eli_ac_ve_isle(game, oyuncu_index, secilen_taslar):
                 oyuncu.is_cift_gorevi = False
                 
                 # ÇİFT GÖREVİNDE JOKER TEMSİLCİSİNİ KAYDET (Global gösterim için)
-                jokerler_in_per = [t for t in secilen_taslar if t.renk == 'joker']
-                
-                if jokerler_in_per:
-                    for joker in jokerler_in_per:
-                         # Joker'in temsilcisi zaten atanmış olmalı (el_ac_joker_ile ile)
-                         if joker.joker_yerine_gecen:
-                              game.acik_joker_temsilcileri.append(joker.joker_yerine_gecen)
+                # NOT: Bu lojik Game.el_ac_joker_ile tarafından zaten ele alınıyor. Yinelenmeyi önlemek için kaldırıldı.
+                # jokerler_in_per = [t for t in secilen_taslar if t.renk == 'joker']
+                # 
+                # if jokerler_in_per:
+                #     for joker in jokerler_in_per:
+                #          if joker.joker_yerine_gecen:
+                #               game.acik_joker_temsilcileri.append(joker.joker_yerine_gecen)
 
 
         # Eğer karma per açma durumu varsa

@@ -12,14 +12,6 @@ from ai.strategies.cift_stratejisi.en_iyi_ciftleri_bul import en_iyi_ciftleri_bu
 def el_ac_dene(ai_player, game):
     gorev = game.mevcut_gorev
     
-    # --- KRİTİK KURAL GÜÇLENDİRMESİ ---
-    if game.acilmis_oyuncular[ai_player.index]:
-        el_acilan_tur = game.ilk_el_acan_tur.get(ai_player.index, -1)
-        if el_acilan_tur == game.tur_numarasi:
-            logger.info(f"AI {ai_player.isim} elini bu turda açtı. Tekrar açması/işlemesi engellendi.")
-            return None
-    # -----------------------------------
-
     if not game.acilmis_oyuncular[ai_player.index]:
         if gorev == "Çift":
             acilacak_per = en_iyi_ciftleri_bul(ai_player.el, gorev)
@@ -43,23 +35,13 @@ def el_ac_dene(ai_player, game):
                 return None
     
     else:
-        # ELİ AÇIK OYUNCU İÇİN EK PER AÇMA MANTIĞI
-        
-        # 1. ESKİ BASİT EL BİTİRME KONTROLÜ KALDIRILDI. 
-        # Yerine daha kapsamlı kombinasyon ve analiz tabanlı arama kullanılır.
-        
-        # 2. NORMAL PER AÇMAYA DEVAM ET (Eli analizi ve Joker kullanımı önceliklidir)
         el_analizi = eli_analiz_et(ai_player.el)
-        
-        # En büyük potansiyel perleri dene (Seriler/Kütler)
         for per in el_analizi["seriler"]:
-            # Per, Joker içerebilir.
             if Rules.genel_per_dogrula(per): return [t.id for t in per]
         for per in el_analizi["uc_taslilar"] + el_analizi["dort_taslilar"]:
             if Rules.genel_per_dogrula(per): return [t.id for t in per]
         
-        # Ek per açma denemesi (Jokeri kullanmak dahil, tüm kombinasyonları dene)
-        # Elde 14 taş ve Joker varken, 14, 13, 12... taşlık perler denenebilir.
+        # Ek per açma denemesi
         for i in range(3, len(ai_player.el) + 1):
             for kombo in combinations(ai_player.el, i):
                 if Rules.genel_per_dogrula(list(kombo)):

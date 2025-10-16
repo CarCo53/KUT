@@ -1,3 +1,5 @@
+# gui/__init__.py
+
 import tkinter as tk
 from gui.visuals import Visuals
 from gui.buttons import ButtonManager
@@ -26,8 +28,11 @@ class Arayuz:
         self.pencere.geometry("1600x1000+0+0")
         self.visuals = Visuals()
         self.visuals.yukle()
+        
+        # Bu nesneler yeni oyun butonunda tekrar oluşturulur.
         self.statusbar = StatusBar(self)
         self.button_manager = ButtonManager(self)
+        
         self.secili_tas_idler = []
         self.alanlar = {}
         # NOTE: _layout_olustur, yeni iki joker etiketlerini (okey_tasi_label_1, vb.) burada tanımlar.
@@ -36,6 +41,7 @@ class Arayuz:
 
     @logger.log_function
     def _layout_olustur(self):
+        # Bu, layout dosyasından çağrılan dış fonksiyonu sarmalar.
         return _layout_olustur(self)
     
     @logger.log_function
@@ -77,8 +83,10 @@ class Arayuz:
             # Tıklama olayı KALDIRILDI ve Unbind çağrısı kaldırıldı.
             temsilci_label.unbind("<Button-1>") 
         else:
+            # YENİ OYUN BAŞLANGICINDA/JOKER DEĞİŞTİRİLDİĞİNDE GÖRSELİ SIFIRLAMA
             ok_label.config(text="") 
-            temsilci_label.config(image=None, text="", borderwidth=0)
+            # Güvenilir Sıfırlama
+            temsilci_label.config(image=None, text="?", font=("Arial", 14)) 
             temsilci_label.image = None
             temsilci_label.unbind("<Button-1>")
             

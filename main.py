@@ -9,7 +9,6 @@ from gui import Arayuz
 from rules.gorevler import GOREV_LISTESI
 from log import logger
 
-
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
 def get_next_log_file_name():

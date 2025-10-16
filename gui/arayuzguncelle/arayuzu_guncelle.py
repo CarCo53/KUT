@@ -6,10 +6,6 @@ from log import logger
 import scoring # YENİ İMPORT
 
 def arayuzu_guncelle(arayuz):
-    # KONTROL KODU: Bu listeyi her güncellemede konsola yazdır
-    print(f"DEBUG: acik_joker_temsilcileri: {arayuz.oyun.acik_joker_temsilcileri}")
-    print(f"DEBUG: Listenin boyutu: {len(arayuz.oyun.acik_joker_temsilcileri)}")
-
     oyun = arayuz.oyun
     for i, oyuncu in enumerate(oyun.oyuncular):
         key = f"oyuncu_{i+1}"
@@ -126,4 +122,4 @@ def arayuzu_guncelle(arayuz):
         arayuz.statusbar.guncelle(f"{sira_bilgi} | {oyuncu_durum}")
         
         # OYUN BİTMEDİYSE AI DÖNGÜSÜNÜ DEVAM ETTİR
-        arayuz.pencere.after(1000, arayuz.ai_oynat)
+        arayuz.pencere.after(750, arayuz.ai_oynat)

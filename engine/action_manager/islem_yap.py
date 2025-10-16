@@ -7,8 +7,7 @@ from rules.rules_manager import Rules
 def islem_yap(game, isleyen_oyuncu_idx, per_sahibi_idx, per_idx, tas_id):
     el_acan_tur = game.ilk_el_acan_tur.get(isleyen_oyuncu_idx)
     if el_acan_tur is not None and game.tur_numarasi <= el_acan_tur:
-        # Kural Güçlendirmesi
-        logger.warning(f"Oyuncu {isleyen_oyuncu_idx} elini açtığı turda işleme yapamaz. Sadece taş atabilir.")
+        logger.warning(f"Oyuncu {isleyen_oyuncu_idx} elini açtığı turda işleme yapamaz.")
         return False
 
     if not game.acilmis_oyuncular[isleyen_oyuncu_idx] or isleyen_oyuncu_idx != game.sira_kimde_index:

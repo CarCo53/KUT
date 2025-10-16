@@ -24,12 +24,11 @@ def baslat_oyun(game, gorev=None):
         # YENİ EKLENEN MANTIK: Oyuncunun Çift görevi bayrağını ayarla
         oyuncu.is_cift_gorevi = is_cift_gorevi 
         
-        tas_sayisi = 25 if i == game.sira_kimde_index else 13
+        tas_sayisi = 25 if i == game.sira_kimde_index else 19
         for _ in range(tas_sayisi):
             oyuncu.tas_al(game.deste.tas_cek())
         
     game.oyun_durumu = GameState.ILK_TUR
-    game.acik_joker_temsilcileri = [] # YENİ EKLENEN: Masadaki joker temsilcilerini sıfırla
     game.atilan_taslar = []
     game.acilan_perler = {i: [] for i in range(len(game.oyuncular))}
     game.turda_tas_cekildi = [False] * len(game.oyuncular)

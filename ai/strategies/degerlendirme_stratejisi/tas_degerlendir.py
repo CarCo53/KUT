@@ -1,31 +1,18 @@
 # ai/strategies/degerlendirme_stratejisi/tas_degerlendir.py
-
 from log import logger
 from itertools import combinations
 from rules.rules_manager import Rules
 from ai.strategies.planlama_stratejisi.eli_analiz_et import eli_analiz_et
-from ai.strategies.cift_stratejisi.tasi_cift_yapar_mi import tasi_cift_yapar_mi # Yeni Kural İçin Import
 
 @logger.log_function
 def tas_degerlendir(ai_player, game, atilan_tas):
-    # Oyuncu el açmışsa (acilmis_oyuncular = True), sadece işleme kuralı uygulanır.
+    # Kural 1: Açılmış per'e işleme
     if game.acilmis_oyuncular[ai_player.index]:
-        # Kural 1: Açılmış per'e işleme
         for per_idx, per in enumerate(game.acilan_perler[ai_player.index]):
             if Rules.islem_dogrula(per, atilan_tas):
                 logger.info(f"AI {ai_player.isim} açılmış perine taş eklemek için atılan taşı alıyor: {atilan_tas.renk}_{atilan_tas.deger}")
                 return True
-    
-    # --- YENİ KURAL: ÇİFT GÖREVİNDE ÇİFT TAMAMLAMA ÖNCELİĞİ ---
-    if game.mevcut_gorev == "Çift" and not game.acilmis_oyuncular[ai_player.index]:
-        # Tasi_cift_yapar_mi fonksiyonu, atılan taşın eldeki tek bir taşı çift yapıp yapmadığını kontrol eder.
-        if tasi_cift_yapar_mi(ai_player.el, atilan_tas):
-            logger.info(f"AI {ai_player.isim} ÇİFT GÖREVİ için çift tamamlamak üzere atılan taşı alıyor: {atilan_tas.renk}_{atilan_tas.deger}")
-            return True
-    # --- KURAL SONU ---
-    
-    # El henüz açılmamışsa (ve Çift kuralı uygulanmadıysa veya başarısız olduysa)
-    if not game.acilmis_oyuncular[ai_player.index]:
+    else:
         gecici_el = ai_player.el + [atilan_tas]
         gecici_el_analizi = eli_analiz_et(gecici_el)
         
