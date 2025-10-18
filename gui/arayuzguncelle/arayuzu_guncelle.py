@@ -143,6 +143,8 @@ def arayuzu_guncelle(arayuz):
 
         arayuz.statusbar.guncelle(f"{final_mesaj} Kalan Puanlar: {puan_mesaji}. Yeni oyuna başlayabilirsiniz.")
         # AI döngüsü durdurulur.
+        # ARABİRİM GÜNCELLEME DÖNGÜSÜ BURADA SONLANDIRILIR
+        return
     else:
         # Genel Status Bar Güncellemesi (Özel durumlar hariç)
         # Eğer özel kısıtlama durumu yoksa, normal durumu göster.
@@ -158,4 +160,5 @@ def arayuzu_guncelle(arayuz):
             arayuz.statusbar.guncelle(f"{sira_bilgi} | {oyuncu_durum}")
         
         # OYUN BİTMEDİYSE AI DÖNGÜSÜNÜ DEVAM ETTİR
-        arayuz.pencere.after(750, arayuz.ai_oynat)
+        # KRİTİK DÜZELTME: Bu satır AI Oynat fonksiyonundan kaldırıldı, sadece burada tutulmalı.
+        arayuz.pencere.after(750, arayuz.ai_oynat) # <-- Sadece oyun bitmediyse çalışır

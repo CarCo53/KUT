@@ -20,7 +20,6 @@ def per_sec(arayuz, oyuncu_index, per_index):
         return
 
     # Adım 2: Joker değiştirme BAŞARISIZ olursa, İşleme Yapma denemesi yapılır.
-    # Joker'den gelen hata mesajı geçici olarak saklanır.
     joker_hata_mesaji = sonuc_joker.get("message", "Geçersiz hamle! (Joker denemesi)")
     
     sonuc_islem = arayuz.oyun.islem_yap(0, oyuncu_index, per_index, secili_tas_id)
@@ -29,15 +28,15 @@ def per_sec(arayuz, oyuncu_index, per_index):
         arayuz.secili_tas_idler = []
         arayuz.statusbar.guncelle("Taş başarıyla işlendi!")
     else:
-        # Hem Joker hem de İşleme başarısız olduysa, daha iyi bir hata mesajı gösterilir.
-        # İşleme hatası mesajı her zaman daha öncelikli olmalıdır.
-        if "Geçersiz per!" in str(sonuc_islem): # İşleme Yap'tan gelen spesifik hata kontrolü (varsa)
-            hata_mesaji = "İşleme başarısız oldu. Seçilen taş per'e uygun değil veya Jokerle işleme yapamazsınız."
-        elif "eşleşmiyor" in joker_hata_mesaji: 
-            hata_mesaji = "Joker alma ve İşleme başarısız. Taşınız Joker'in temsil ettiği taşla eşleşmiyor ve per'e uymuyor."
-        else:
-             hata_mesaji = "Geçersiz hamle! (Seçilen per'e taş işlenemez veya joker alınamaz)"
+        # Hem Joker hem de İşleme başarısız olduysa.
         
+        # Joker alma hatası ve İşleme hatasının en genel nedeni olan kural dışılığı yansıtan mesaj:
+        hata_mesaji = "Joker alma ve İşleme başarısız. Taşınız Joker'in temsil ettiği taşla eşleşmiyor ve per'e uymuyor."
+        
+        # Eğer motorun döndürdüğü özel kısıtlama mesajı varsa (örneğin aynı turda birden fazla ana hamle)
+        if isinstance(sonuc_islem, dict) and sonuc_islem.get("status") == "fail":
+             hata_mesaji = sonuc_islem.get("message", hata_mesaji)
+
         arayuz.statusbar.guncelle(hata_mesaji)
 
     arayuz.arayuzu_guncelle()

@@ -8,7 +8,8 @@ from rules.rules_manager import Rules # Kural kontrolü için eklendi
 def ai_oynat(arayuz):
     oyun = arayuz.oyun
     if oyun.oyun_bitti_mi():
-        arayuz.arayuzu_guncelle()
+        # Oyun bitmişse, arayüzü güncelle ve çık (arayuzu_guncelle, BITIS durumunda döngüyü kıracak)
+        arayuz.arayuzu_guncelle() 
         return
 
     if oyun.oyun_durumu == GameState.ATILAN_TAS_DEGERLENDIRME:
@@ -142,4 +143,5 @@ def ai_oynat(arayuz):
                     oyun.kazanan_index = sira_index
             arayuz.arayuzu_guncelle()
 
-    arayuz.pencere.after(750, arayuz.ai_oynat)
+    # KRİTİK DÜZELTME: Bu satır kaldırıldı. Döngü arayuzu_guncelle içinden devam ettiriliyor.
+    # arayuz.pencere.after(750, arayuz.ai_oynat)
