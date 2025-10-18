@@ -9,14 +9,18 @@ class JokerManager:
     @staticmethod
     @logger.log_function
     def el_ac_joker_kontrolu(game, oyuncu, secilen_taslar):
+        
+        # YENİ KRİTİK KONTROL: Oyuncu elini açmışsa, MİSYON KURALLARI GEÇERSİZDİR.
+        is_ilk_acilis = not game.acilmis_oyuncular[oyuncu.index]
+        
         jokerler = [t for t in secilen_taslar if t.renk == "joker"]
         normal_taslar = [t for t in secilen_taslar if t.renk != "joker"]
 
         if not jokerler:
             return {"status": "no_joker"}
         
-        # KRİTİK: ÇİFT GÖREVİ İÇİN ÖZEL MANTIK (Joker seçimi zorunlu)
-        if game.mevcut_gorev == "Çift":
+        # KRİTİK MİSYON KONTROLÜ (SADECE ilk açılışta geçerlidir)
+        if is_ilk_acilis and game.mevcut_gorev == "Çift":
             
             if len(secilen_taslar) != 8:
                  return {"status": "invalid_joker_move", "message": "Çift görevi için tam olarak 8 taş seçmelisiniz."}
@@ -42,7 +46,8 @@ class JokerManager:
                       # Elde kalan da yoksa, sembolik bir seçim sun (UI'ı tetiklemek için)
                       return {"status": "joker_choice_needed", "options": [Tile("mavi", 1, "mavi_1.png")], "joker": jokerler[0], "secilen_taslar": secilen_taslar}
 
-        # Seriler ve Kütler için orijinal mantık (değiştirilmedi)
+        # NORMAL JOKER KONTROLÜ (Görevi tamamladıktan sonraki sınırsız açılışlar için)
+        # Bu kısım sadece 3 veya 4 taşlık perleri kontrol eder.
         
         is_seri_potansiyeli = len({t.renk for t in normal_taslar}) == 1
         is_kut_potansiyeli = len({t.deger for t in normal_taslar}) == 1
@@ -52,13 +57,13 @@ class JokerManager:
         if is_kut_potansiyeli and len(normal_taslar) <= 3:
             return {"status": "joker_choice_needed", "options": JokerManager.joker_icin_olasi_taslar(normal_taslar), "joker": jokerler[0], "secilen_taslar": secilen_taslar}
         
+        # Eğer ne misyon kuralı ne de normal per kuralları ile joker kullanılabiliyorsa geçersiz hamledir.
         return {"status": "invalid_joker_move"}
     
     @staticmethod
     @logger.log_function
     def joker_icin_olasi_taslar(diger_taslar):
         # ... (mevcut kod aynı kalır)
-        # Sadece placeholder bırakıldı, kodun kalanını bozmamak için
         olasi_taslar = []
         
         # Seri için

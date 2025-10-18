@@ -20,6 +20,10 @@ def desteden_cek(game, oyuncu_index):
         game.turda_tas_cekildi[oyuncu_index] = True
         game.oyun_durumu = GameState.NORMAL_TAS_ATMA
         oyuncu.el_sirala()
+        
+        # YENİ EKLENEN KISIM: Yeni tur başladığı için ana hamle bayrağını sıfırla
+        game.oyuncu_hamle_yapti[oyuncu_index] = False
+        
         return True
     else:
         # Deste boşsa (tas None döndüyse), oyunu bitir.

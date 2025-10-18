@@ -1,5 +1,4 @@
-# engine/action_manager/_eli_ac_ve_isle.py dosyası güncelleniyor
-
+# engine/action_manager/_eli_ac_ve_isle.py
 from log import logger
 from core.game_state import GameState
 from rules.rules_manager import Rules
@@ -11,34 +10,33 @@ def _eli_ac_ve_isle(game, oyuncu_index, secilen_taslar):
     is_ilk_acilis = not game.acilmis_oyuncular[oyuncu_index]
     dogrulama_sonucu = False
     
-    # İlk el açılışına özel kurallar
+    # ---------------------------------------------------------------------
+    # KRİTİK KURAL DÜZELTMESİ: İlk el açılışına özel kurallar
     if is_ilk_acilis:
+        # Çift görevi için zorunlu 8 taş kuralı
         if game.mevcut_gorev == "Çift" and len(secilen_taslar) != 8:
             return {"status": "fail", "message": "Çift görevi için tam olarak 8 taş (4 çift) açmalısınız."}
+        
+        # Göreve uygunluk kontrolü
         dogrulama_sonucu = Rules.per_dogrula(secilen_taslar, game.mevcut_gorev)
+        
     else:
+        # El açmış oyuncular için sınırsız açma: Genel per doğrulama
         dogrulama_sonucu = Rules.genel_per_dogrula(secilen_taslar)
+    # ---------------------------------------------------------------------
 
     if dogrulama_sonucu:
         if is_ilk_acilis:
             game.acilmis_oyuncular[oyuncu_index] = True
             game.ilk_el_acan_tur[oyuncu_index] = game.tur_numarasi
             
-            # YENİ MANTIK: GÖREV BAŞARIYLA TAMAMLANDIĞINDA SIRALAMAYI NORMALE DÖNDÜR
+            # ANA HAMLE BAYRAĞI: SADECE İLK AÇILIŞ TURUNDA (Görev tamamlandı) True yapılır.
+            game.oyuncu_hamle_yapti[oyuncu_index] = True 
+            
             if game.mevcut_gorev == "Çift":
                 oyuncu.is_cift_gorevi = False
                 
-                # ÇİFT GÖREVİNDE JOKER TEMSİLCİSİNİ KAYDET (Global gösterim için)
-                # NOT: Bu lojik Game.el_ac_joker_ile tarafından zaten ele alınıyor. Yinelenmeyi önlemek için kaldırıldı.
-                # jokerler_in_per = [t for t in secilen_taslar if t.renk == 'joker']
-                # 
-                # if jokerler_in_per:
-                #     for joker in jokerler_in_per:
-                #          if joker.joker_yerine_gecen:
-                #               game.acik_joker_temsilcileri.append(joker.joker_yerine_gecen)
-
-
-        # Eğer karma per açma durumu varsa
+        # Perleri taşa işle
         if isinstance(dogrulama_sonucu, tuple):
             for per in dogrulama_sonucu:
                 for tas in per:

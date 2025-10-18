@@ -2,7 +2,6 @@
 
 from core.player import Player
 from log import logger
-# from itertools import combinations # Artık bu fonksiyonlar dışarıda kullanılıyor.
 
 # Ayırdığımız strateji fonksiyonlarını import et
 from ai.strategies.degerlendirme_stratejisi.tas_degerlendir import tas_degerlendir
@@ -19,17 +18,16 @@ class AIPlayer(Player):
 
     @logger.log_function
     def atilan_tasi_degerlendir(self, game, atilan_tas):
-        # Tüm değerlendirme mantığı dışarıdaki fonksiyona devredildi.
         return tas_degerlendir(self, game, atilan_tas)
 
     @logger.log_function
     def ai_el_ac_dene(self, game):
-        # Tüm el açma mantığı dışarıdaki fonksiyona devredildi.
+        # DÜZELTME: El açmış oyuncular için kısıtlama kaldırıldı. AI her zaman hamle aramalıdır.
         return el_ac_dene(self, game)
 
     @logger.log_function
     def ai_islem_yap_dene(self, game):
-        # Tüm işleme yapma/joker değiştirme mantığı dışarıdaki fonksiyona devredildi.
+        # DÜZELTME: El açmış oyuncular için kısıtlama kaldırıldı. AI her zaman hamle aramalıdır.
         return islem_yap_dene(self, game)
 
     @logger.log_function
